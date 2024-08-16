@@ -5,3 +5,6 @@ feel free to use these in your hubs, but please credit me! this github will cont
 you will have to make everything else on you own, such as:
 * default accessories system, like myworld's
 * more idk
+
+# Credits
+* MyWorld for supposedly coming up with using FPDH
