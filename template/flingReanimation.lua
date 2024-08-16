@@ -15,7 +15,10 @@ local Accessories = {
 ------------------------------------------------------------------------------------------------------------------------
 local plr = game.Players.LocalPlayer
 local fph = workspace.FallenPartsDestroyHeight
+local mouse = plr:GetMouse()
 local FakeCharacter
+local flingCooldown
+local flingpart
 
 function HatdropCallback(character: Model, callback: Function, yeild: bool?)
     if not yeild then
@@ -150,7 +153,7 @@ function Align(Part1,Part0,CFrameOffset)
     AlignPos.Attachment1 = AttachmentB;
     AlignOri.Attachment0 = AttachmentA;
     AlignOri.Attachment1 = AttachmentB;
-    return {AttachmentB,AlignOri,AlignPos}
+    return {AttachmentB,AlignOri,AlignPos,AttachmentA,Part1}
 end
 
 function complexfind(t,c)
@@ -187,7 +190,7 @@ do
         for i,v in pairs(hats) do
             if v:FindFirstChild("Handle") and complexfind(Accessories, v.Name) then
                 local limb, info = complexfind(Accessories, v.Name)
-                if limb == "FlingPart" then continue end
+                if limb == "FlingPart" then flingpart = v.Handle continue end
                 
                 Align(v.Handle,FakeCharacter[limb],info[2])
             end
@@ -209,15 +212,43 @@ plr.CharacterAdded:Connect(function(c)
         for i,v in pairs(hats) do
             if v:FindFirstChild("Handle") and complexfind(Accessories, v.Name) then
                 local limb, info = complexfind(Accessories, v.Name)
-                if limb == "FlingPart" then continue end
+                if limb == "FlingPart" then 
+                    local part = Instance.new("Part")
+                    part.Parent = workspace
+                    part.Anchored = true
+                    part.CanCollide = false
+                    part.Transparency = 1
+
+                    flingpart = Align(v.Handle,part,info[2]) 
+                    continue 
+                end
 
                 Align(v.Handle,FakeCharacter[limb],info[2])
             end
         end
-
-        task.wait(0.1)
-
-        plr.Character = FakeCharacter
-        workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
     end, true)
+
+    task.wait(0.1)
+    plr.Character = FakeCharacter
+    workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
+end)
+
+mouse.Button1Down:Connect(function()
+    -- srry for messy code idk how i'd made this look better
+	local target = mouse.Target
+
+	if Accessories["FlingPart"][1] ~= "" then return end
+	if flingCooldown then return end
+
+	if target.Parent:FindFirstChild("Humanoid") and target.Parent ~= workspace and target.Parent.Name ~= FakeCharacter.Name or target.Parent.Name ~= plr.Name and flingpart ~= nil then
+        if flingpart[4].Parent == nil then return end
+        flingCooldown = true
+        local flingCon = game:GetService("RunService").PostSimulation:Connect(function()
+            flingpart[5].AssemblyLinearVelocity = Vector3.new(9999,9999,9999)
+        end)
+        task.wait(1.5)
+        flingCon:Disconnect()
+        task.wait(0.2)
+        flingCooldown = false
+	end
 end)
