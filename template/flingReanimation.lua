@@ -179,11 +179,16 @@ do
         end
     end
 
-    HatdropCallback(RealChar, function(hats)
+    HatdropCallback(RealChar, function(hats, dropped)
+        if not dropped then
+            -- undetermined
+        end
+
         for i,v in pairs(hats) do
             if v:FindFirstChild("Handle") and complexfind(Accessories, v.Name) then
                 local limb, info = complexfind(Accessories, v.Name)
-
+                if limb == "FlingPart" then continue end
+                
                 Align(v.Handle,FakeCharacter[limb],info[2])
             end
         end
@@ -196,10 +201,15 @@ do
 end
 
 plr.CharacterAdded:Connect(function(c)
-    HatdropCallback(c, function(hats)
+    HatdropCallback(c, function(hats, dropped)
+        if not dropped then
+            -- undetermined
+        end
+
         for i,v in pairs(hats) do
-            if v:FindFirstChild("Handle") and find(Accessories, v.Name) then
-                local limb, info = find(Accessories, v.Name)
+            if v:FindFirstChild("Handle") and complexfind(Accessories, v.Name) then
+                local limb, info = complexfind(Accessories, v.Name)
+                if limb == "FlingPart" then continue end
 
                 Align(v.Handle,FakeCharacter[limb],info[2])
             end
