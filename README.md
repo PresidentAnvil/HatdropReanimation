@@ -1,4 +1,4 @@
-# loadlua's HatdropReanimation
+# loadlua's Hatdrop Reanimation
 feel free to use these in your hubs, but please credit me! this github will contain all the premade FE Scripts i've made with hatdrop. if you've got any questions, hmu on discord (loadlua)
 
 ## AKNOWLEDGE THAT...
