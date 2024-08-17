@@ -8,3 +8,4 @@ you will have to make everything else on you own, such as:
 
 # Credits
 * MyWorld for supposedly coming up with using FPDH
+* ShownApe for his hatdrop script having a couple good concepts that I used
