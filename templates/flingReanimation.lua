@@ -99,7 +99,7 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
 		if v:FindFirstChild("Handle") then
 			local con;con=ps:Connect(function()
 				if v:FindFirstChild("Handle") then
-					v.Velocity = velocity
+					v.Handle.Velocity = velocity
 				else
 					con:Disconnect()
 				end
