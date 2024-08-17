@@ -7,12 +7,12 @@ getgenv().velocity = Vector3.new(20,20,20)
 getgenv().viewdeath = false
 getgenv().Accessories = {
 	-- Limb/Part name | {Accessory name, offset}
-	["Left Arm"] = {"MeshPartAccessory",ca(0,0,r(90))},
-	["Right Arm"] = {"InternationalFedora",ca(0,0,-r(90))},
-	["Right Leg"] = {"MeshPartAccessory",ca(0,0,r(90))},
-	["Left Leg"] = {"MeshPartAccessory",ca(0,0,r(90))},
-	["Torso"] = {"MediHood",cn(0,0,0)},
-	["Head"] = {"PlaidWrapHat",cn(0,0,0)},
+	["Left Arm"] = {"MessyHair",ca(0,0,r(90))},
+	["Right Arm"] = {"Pal Hair",ca(0,0,-r(90))},
+	["Right Leg"] = {"Hat1",ca(0,0,r(90))},
+	["Left Leg"] = {"BrownCharmerHair",ca(0,0,r(90))},
+	["Torso"] = {"MeshPartAccessory",ca(0,0,-r(14))},
+	["Head"] = {"MediHood",cn(0,0,0.2)},
 	["FlingPart"] = {"",cn(0,0,0)}
 }
 ------------------------------------------------------------------------------------------------------------------------
@@ -26,6 +26,17 @@ local FakeCharacter
 local flingCooldown
 local flingpart
 
+function complexfind(t,c)
+	-- table.find is Bad i domp like irwt
+
+	for i,v in pairs(t) do
+		if v == c then return i,v end
+		if type(v) == "table" then if complexfind(v,c) then return i,v end end -- will return most parent and not 1 or 2
+	end
+
+	return false
+end
+
 function HatdropCallback(character: Model, callback: Function, yeild: bool?)
     local velocity = getgenv().velcoity
     local c=character
@@ -33,20 +44,28 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
 	for i, v in pairs(c.Humanoid:GetPlayingAnimationTracks()) do
         v:Stop()
     end
+    hrp.CFrame = FakeCharacter.HumanoidRootPart.CFrame
     local anim = Instance.new("Animation")
     anim.AnimationId = "rbxassetid://35154961"
     local loadanim = c.Humanoid:LoadAnimation(anim)
     loadanim:Play()
     loadanim.TimePosition = 3.24
     loadanim:AdjustSpeed(0)
-    local a = hrp.CFrame
+    local a = FakeCharacter.HumanoidRootPart.CFrame
     for i, v in c.Humanoid:GetAccessories() do
         sethiddenproperty(v,"BackendAccoutrementState",0)
-        task.delay(0.95,function()
+        local limb, info = complexfind(Accessories,v.Name)
+        local isleghat = limb:find("Leg")
+
+
+        task.delay(0.8+.6,function()
             local con;con = game:GetService"RunService".PostSimulation:Connect(function(dt)
                 pcall(function()
                     if not v:FindFirstChild("Handle") then
                         con:Disconnect()
+                    end
+                    if isleghat then
+                        v.Handle.CanCollide = false
                     end
                     v.Handle.AssemblyLinearVelocity = velocity               
                 end)
@@ -87,17 +106,6 @@ function Align(Part1,Part0,CFrameOffset)
         if Part1.Parent == nil then con:Disconnect() return end
         Part1.CFrame = Part0.CFrame * CFrameOffset
     end)
-end
-
-function complexfind(t,c)
-	-- table.find is Bad i domp like irwt
-
-	for i,v in pairs(t) do
-		if v == c then return i,v end
-		if type(v) == "table" then if complexfind(v,c) then return i,v end end -- will return most parent and not 1 or 2
-	end
-
-	return false
 end
 
 do
@@ -197,6 +205,7 @@ do
 	end
 
 	HatdropCallback(RealChar, function(hats, dropped)
+        Accessories = getgenv().Accessories
 		for i,v in pairs(FakeCharacter:GetChildren()) do
 			if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" and Accessories[v.Name][1] ~= "" then
                 local hat
@@ -227,9 +236,9 @@ ps:Connect(function()
 end)
 
 plr.CharacterAdded:Connect(function(c)
-    Accessories = getgenv().Accessories
-	task.wait(0.4)
+	task.wait(0.3)
 	HatdropCallback(c, function(hats, dropped)
+        Accessories = getgenv().Accessories
 		for i,v in pairs(FakeCharacter:GetChildren()) do
 			if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" and Accessories[v.Name][1] ~= "" then
                 local hat
