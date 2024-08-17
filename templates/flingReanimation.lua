@@ -284,7 +284,7 @@ do
 end
 
 ps:Connect(function()
-	--workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
+	workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
 end)
 
 plr.CharacterAdded:Connect(function(c)
