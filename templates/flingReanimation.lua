@@ -114,7 +114,23 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
 	for i,v in ipairs(allhats) do
 		updatestate(v,4)
 	end
-
+	repeat
+		local foundhandle = false
+		for i,v in ipairs(allhats) do
+			if v:FindFirstChild("Handle") then
+				foundhandle = true
+				if v.Handle.CanCollide then
+					dropped = true
+					break
+				end
+			end
+		end
+		if not foundhandle then
+			break
+		end
+		task.wait()
+	until plr.Character ~= character or dropped
+		
 	callback(allhats,dropped)
 end
 
