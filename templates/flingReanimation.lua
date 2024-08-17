@@ -1,152 +1,96 @@
 -- set/gethiddenproperty required
-
 r=math.rad
 ca=CFrame.Angles
 cn=CFrame.new
-local Accessories = {
+
+getgenv().velocity = Vector3.new(20,20,20)
+getgenv().viewdeath = false
+getgenv().Accessories = {
 	-- Limb/Part name | {Accessory name, offset}
-	["Left Arm"] = {"",ca(0,0,r(90))},
-	["Right Arm"] = {"",ca(0,0,r(90))},
-	["Right Leg"] = {"",ca(0,0,r(90))},
-	["Left Leg"] = {"",ca(0,0,r(90))},
-	["Torso"] = {"",cn(0,0,0)},
-	["Head"] = {"",cn(0,0,0)},
+	["Left Arm"] = {"MeshPartAccessory",ca(0,0,r(90))},
+	["Right Arm"] = {"InternationalFedora",ca(0,0,-r(90))},
+	["Right Leg"] = {"MeshPartAccessory",ca(0,0,r(90))},
+	["Left Leg"] = {"MeshPartAccessory",ca(0,0,r(90))},
+	["Torso"] = {"MediHood",cn(0,0,0)},
+	["Head"] = {"PlaidWrapHat",cn(0,0,0)},
 	["FlingPart"] = {"",cn(0,0,0)}
 }
-
 ------------------------------------------------------------------------------------------------------------------------
 local plr = game.Players.LocalPlayer
 local fph = workspace.FallenPartsDestroyHeight
+local Accessories = getgenv().Accessories
 local mouse = plr:GetMouse()
 local ps = game:GetService("RunService").PostSimulation
 local printdebug = true
-local velocity = Vector3.new(20,20,20)
 local FakeCharacter
 local flingCooldown
 local flingpart
 
-function updatestate(hat,state)
-    if sethiddenproperty then
-        sethiddenproperty(hat,"BackendAccoutrementState",state)
-    elseif setscriptable then
-        setscriptable(hat,"BackendAccoutrementState",true)
-        hat.BackendAccoutrementState = state
-    else
-        local success = pcall(function()
-            hat.BackendAccoutrementState = state
+function HatdropCallback(character: Model, callback: Function, yeild: bool?)
+    local velocity = getgenv().velcoity
+    local c=character
+    local hrp = c:WaitForChild('HumanoidRootPart')
+	for i, v in pairs(c.Humanoid:GetPlayingAnimationTracks()) do
+        v:Stop()
+    end
+    local anim = Instance.new("Animation")
+    anim.AnimationId = "rbxassetid://35154961"
+    local loadanim = c.Humanoid:LoadAnimation(anim)
+    loadanim:Play()
+    loadanim.TimePosition = 3.24
+    loadanim:AdjustSpeed(0)
+    local a = hrp.CFrame
+    for i, v in c.Humanoid:GetAccessories() do
+        sethiddenproperty(v,"BackendAccoutrementState",0)
+        task.delay(0.95,function()
+            local con;con = game:GetService"RunService".PostSimulation:Connect(function(dt)
+                pcall(function()
+                    if not v:FindFirstChild("Handle") then
+                        con:Disconnect()
+                    end
+                    v.Handle.AssemblyLinearVelocity = velocity               
+                end)
+            end)
         end)
-        if not success then
-            error("executor not supported, sorry!")
+    end
+    hrp.CFrame *= CFrame.Angles(math.rad(90),0,0)
+    c.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+    game:GetService("TweenService"):Create(hrp,TweenInfo.new(1.6,Enum.EasingStyle.Linear),{CFrame = CFrame.new(a.X,fph+3,a.Z)* ca(r(90),0,0)}):Play()
+    local t = {}
+    c.ChildRemoved:Connect(function(v)
+        if v:IsA("BasePart") then
+            print(v.Name)
+            table.insert(t,v.Name)
         end
+    end)
+    coroutine.wrap(function()
+        while hrp.Parent ~= nil do
+            game:GetService("RunService").PostSimulation:Wait()
+            hrp.AssemblyLinearVelocity = Vector3.zero
+            hrp.AssemblyAngularVelocity = Vector3.zero
+        end
+    end)()
+    task.wait(0.85+.6)
+    c.Humanoid.Health = 0
+	callback(c.Humanoid:GetAccessories())
+    local stopat = tick()+5
+    repeat task.wait() until t[7] or tick()>stopat
+    if t[7] == "Head" and t[1] == "HumanoidRootPart" then
+        print("Your hats got collision")
+    else
+        print("Body parts were deleted out of order. You may not have gotten collision")
     end
 end
 
-function HatdropCallback(character: Model, callback: Function, yeild: bool?)
-	local hrp = character:WaitForChild("HumanoidRootPart")
-	local hum = character:WaitForChild("Humanoid")
-	local torso = character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
-	local allhats = {}
-	local locks = {}
-	local dropped
-	local tpt
-	
-	for i,v in ipairs(character:GetChildren()) do
-		if v:IsA("Accessory") then
-			table.insert(allhats,v)
-		end
-	end
-	
-	for i,v in ipairs(allhats) do
-		table.insert(locks,v.Changed:Connect(function(p)
-			if p == "BackendAccoutrementState" then
-				updatestate(v,0)
-			end
-		end))
-		updatestate(v,2)
-	end
-	
-	if printdebug then 
-		character.ChildRemoved:Connect(function(v)
-			if v:IsA"BasePart" then
-				print(v.Name)
-			end
-		end)
-	end
-	
-	local dropcf = cn(hrp.CFrame.X,fph + 2,hrp.CFrame.Z) * ca(r(90),0,0)
-	if character.Humanoid.RigType == Enum.HumanoidRigType.R15 then
-		-- when i find a good anim 🎥
-	else
-		local anim = Instance.new("Animation")
-		anim.AnimationId = "rbxassetid://35154961"
-		local loadanim = hum:LoadAnimation(anim)
-		loadanim:Play(0, 100, 0)
-		loadanim.TimePosition = 3.24
-	end
-	hum:ChangeState(16)
-	coroutine.wrap(function()
-		while hrp.Parent ~= nil and tpt ~= true do
-			hrp.CFrame = dropcf
-			hrp.AssemblyLinearVelocity = Vector3.zero
-			hrp.AssemblyAngularVelocity = Vector3.zero
-			ps:Wait()
-		end
-	end)()
-	
-	task.wait(.25)
-	hum.Health=0
-	for i,v in ipairs(allhats) do
-		if v:FindFirstChild("Handle") then
-			local con;con=ps:Connect(function()
-				if v:FindFirstChild("Handle") then
-					if v.Name == Accessories.FlingPart[1] and flingCooldown == true then return end
-					v.Handle.Velocity = velocity
-				else
-					con:Disconnect()
-				end
-			end)
-		end
-	end
-	tpt=true
-	torso.AncestryChanged:Wait()
-	for i,v in ipairs(locks) do
-		v:Disconnect()
-	end
-	for i,v in ipairs(allhats) do
-		updatestate(v,4)
-	end
-	
-	callback(allhats,true)
-end
-
 function Align(Part1,Part0,CFrameOffset) 
-	local AlignPos = Instance.new('AlignPosition', Part1);
-	AlignPos.Parent.CanCollide = false;
-	AlignPos.ApplyAtCenterOfMass = true;
-	AlignPos.MaxForce = 67752;
-	AlignPos.MaxVelocity = math.huge/9e110;
-	AlignPos.ReactionForceEnabled = false;
-	AlignPos.Responsiveness = 200;
-	AlignPos.RigidityEnabled = false;
-	local AlignOri = Instance.new('AlignOrientation', Part1);
-	AlignOri.MaxAngularVelocity = math.huge/9e110;
-	AlignOri.MaxTorque = 67752;
-	AlignOri.PrimaryAxisOnly = false;
-	AlignOri.ReactionTorqueEnabled = false;
-	AlignOri.Responsiveness = 200;
-	AlignOri.RigidityEnabled = false;
-	local AttachmentA=Instance.new('Attachment',Part1);
-	local AttachmentB=Instance.new('Attachment',Part0);
-	AttachmentB.CFrame = AttachmentB.CFrame * CFrameOffset
-	AlignPos.Attachment0 = AttachmentA;
-	AlignPos.Attachment1 = AttachmentB;
-	AlignOri.Attachment0 = AttachmentA;
-	AlignOri.Attachment1 = AttachmentB;
-	return {AttachmentB,AlignOri,AlignPos,AttachmentA,Part1}
+    local con;con=ps:Connect(function()
+        if Part1.Parent == nil then con:Disconnect() return end
+        Part1.CFrame = Part0.CFrame * CFrameOffset
+    end)
 end
 
 function complexfind(t,c)
-	-- table.find is Bad i domp like irt
+	-- table.find is Bad i domp like irwt
 
 	for i,v in pairs(t) do
 		if v == c then return i,v end
@@ -253,61 +197,51 @@ do
 	end
 
 	HatdropCallback(RealChar, function(hats, dropped)
-		if not dropped then
-			print("not dropped")
-		else
-			print("dropped")
-		end
-
-		for i,v in pairs(hats) do
-			if v:FindFirstChild("Handle") and complexfind(Accessories, v.Name) then
-				local limb, info = complexfind(Accessories, v.Name)
-				if limb == "FlingPart" then 					
-					local part = Instance.new("Part")
-					part.Parent = workspace
-					part.Anchored = true
-					part.CanCollide = false
-					part.Transparency = 1
-
-					flingpart = Align(v.Handle,part,info[2])  
-					continue 
-				end
-
-				Align(v.Handle,FakeCharacter[limb],info[2])
+		for i,v in pairs(FakeCharacter:GetChildren()) do
+			if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" and Accessories[v.Name][1] ~= "" then
+                local hat
+                for i,h in pairs(hats) do
+                    if h.Name == Accessories[v.Name][1] and h:FindFirstChild("Handle") then
+                        hat = h
+                        continue
+                    end
+                end
+                if not hat then continue end
+                if v.Name:find("Leg") then hat.Handle.CanCollide=false end
+				Align(hat.Handle,FakeCharacter[v.Name],Accessories[v.Name][2])
 			end
 		end
 	end)
 end
 
 ps:Connect(function()
+    if getgenv().viewdeath then return end
 	workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
+end)
+ps:Connect(function()
+	for i, v in ipairs(FakeCharacter:GetDescendants()) do
+		if v:IsA("BasePart") then
+			v.CanCollide = false
+        end
+	end
 end)
 
 plr.CharacterAdded:Connect(function(c)
-	task.wait(0.25)
-	
+    Accessories = getgenv().Accessories
+	task.wait(0.4)
 	HatdropCallback(c, function(hats, dropped)
-		if not dropped then
-			print("not dropped")
-		else
-			print("dropped")
-		end
-
-		for i,v in pairs(hats) do
-			if v:FindFirstChild("Handle") and complexfind(Accessories, v.Name) then
-				local limb, info = complexfind(Accessories, v.Name)
-				if limb == "FlingPart" then 
-					local part = Instance.new("Part")
-					part.Parent = workspace
-					part.Anchored = true
-					part.CanCollide = false
-					part.Transparency = 1
-
-					flingpart = Align(v.Handle,part,info[2]) 
-					continue 
-				end
-
-				Align(v.Handle,FakeCharacter[limb],info[2])
+		for i,v in pairs(FakeCharacter:GetChildren()) do
+			if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" and Accessories[v.Name][1] ~= "" then
+                local hat
+                for i,h in pairs(hats) do
+                    if h.Name == Accessories[v.Name][1] and h:FindFirstChild("Handle") then
+                        hat = h
+                        continue
+                    end
+                end
+                if not hat then continue end
+				if v.Name:find("Leg") then hat.Handle.CanCollide=false end
+				Align(hat.Handle,FakeCharacter[v.Name],Accessories[v.Name][2])
 			end
 		end
 	end)
