@@ -1,4 +1,4 @@
--- you're going to have to give collision to hats on the serverside on death
+-- set/gethiddenproperty required
 
 r=math.rad
 ca=CFrame.Angles
@@ -10,7 +10,7 @@ local Accessories = {
 	["Right Leg"] = {"",ca(0,0,r(90))},
 	["Left Leg"] = {"",ca(0,0,r(90))},
 	["Torso"] = {"",cn(0,0,0)},
-	["Head"] = {"VarietyShades02",cn(0,0,0)},
+	["Head"] = {"",cn(0,0,0)},
 	["FlingPart"] = {"",cn(0,0,0)}
 }
 
@@ -20,6 +20,7 @@ local fph = workspace.FallenPartsDestroyHeight
 local mouse = plr:GetMouse()
 local ps = game:GetService("RunService").PostSimulation
 local printdebug = true
+local velocity = Vector3.new(20,20,20)
 local FakeCharacter
 local flingCooldown
 local flingpart
@@ -94,6 +95,17 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
 	
 	task.wait(.25)
 	hum.Health=0
+	for i,v in ipairs(allhats) do
+		if v:FindFirstChild("Handle") then
+			local con;con=ps:Connect(function()
+				if v:FindFirstChild("Handle") then
+					v.Velocity = velocity
+				else
+					con:Disconnect()
+				end
+			end)
+		end
+	end
 	tpt=true
 	torso.AncestryChanged:Wait()
 	for i,v in ipairs(locks) do
