@@ -99,6 +99,7 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
 		if v:FindFirstChild("Handle") then
 			local con;con=ps:Connect(function()
 				if v:FindFirstChild("Handle") then
+					if v.Name == Accessories.FlingPart[1] and flingCooldown == true then return end
 					v.Handle.Velocity = velocity
 				else
 					con:Disconnect()
@@ -114,8 +115,7 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
 	for i,v in ipairs(allhats) do
 		updatestate(v,4)
 	end
-
-		
+	
 	callback(allhats,true)
 end
 
@@ -316,19 +316,30 @@ end)
 mouse.Button1Down:Connect(function()
 	-- srry for messy code idk how i'd made this look better
 	local target = mouse.Target
-
+	local tChar = target.Parent or target.Parent.Parent
+			
 	if Accessories["FlingPart"][1] ~= "" then return end
+	if flingpart[4].Parent == nil then return end
 	if flingCooldown then return end
-
-	if target.Parent:FindFirstChild("Humanoid") and target.Parent ~= workspace and target.Parent.Name ~= FakeCharacter.Name or target.Parent.Name ~= plr.Name and flingpart ~= nil then
-		if flingpart[4].Parent == nil then return end
+	
+	if tChar and tChar:FindFirstChild("Humanoid") and tChar:FindFirstChild("HumanoidRootPart") and tChar ~= workspace and tChar.Name ~= FakeCharacter.Name or tChar.Name ~= plr.Name and flingpart ~= nil then
 		flingCooldown = true
-		local flingCon = ps:Connect(function()
+				
+		local flingCon
+		local flinghighlight = Instance.new("Highlight")
+		flinghighlight.Parent = target.Parent
+				
+		flingCon = ps:Connect(function()
+			if not flingpart[1].Parent or not target.Parent:FindFirstChild("HumanoidRootPart") then
+				flingCon:Disconnect()
+			end
+			flingpart[1].Parent.CFrame = target.Parent.HumanoidRootPart.CFrame
 			flingpart[5].AssemblyLinearVelocity = Vector3.new(9999,9999,9999)
 		end)
 		task.wait(1.5)
 		flingCon:Disconnect()
-		task.wait(0.2)
+		flinghighlight:Destroy()
+		task.wait(0.5)
 		flingCooldown = false
 	end
 end)
