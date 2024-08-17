@@ -3,6 +3,15 @@
 # loadlua's Hatdrop Reanimation
 feel free to use these in your hubs, but please credit me! this github will contain all the premade FE Scripts i've made with hatdrop. if you've got any questions, hmu on discord (loadlua)
 
+# Known Issues
+* Flickering
+
+  ![Flickering](./videos/flicker.gif)
+
+* Jitter
+
+  No footage (too lazy)
+
 ## AKNOWLEDGE THAT...
 you will have to make everything else on you own, such as:
 * default accessories system, like myworld's
