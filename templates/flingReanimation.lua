@@ -116,7 +116,7 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
 	end
 
 		
-	callback(allhats,dropped)
+	callback(allhats,true)
 end
 
 function Align(Part1,Part0,CFrameOffset) 
