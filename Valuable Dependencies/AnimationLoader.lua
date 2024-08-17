@@ -44,7 +44,7 @@ end
 local Main = {}
 Main.__index = Main
 
-function Main.LoadDummy(DummyChar: Model)
+function Main.loadDummy(DummyChar: Model)
 	local metatable = {}
 	
 	setmetatable(metatable, Main)
