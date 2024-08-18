@@ -218,15 +218,12 @@ end)
                     end
                 end
                 if not hat then continue end
-                if v.Name:find("Leg") then hat.Handle.CanCollide=false end
                 hat.Parent = FakeCharacter
 				Align(hat.Handle,FakeCharacter[v.Name],Accessories[v.Name][2])
 			end
 		end
 	end)
 end
-
-
 
 coroutine.wrap(function()
     print("Move list")
@@ -1970,7 +1967,6 @@ plr.CharacterAdded:Connect(function(c)
                     end
                 end
                 if not hat then continue end
-				if v.Name:find("Leg") then hat.Handle.CanCollide=false end
                 hat.Parent = FakeCharacter
 				Align(hat.Handle,FakeCharacter[v.Name],Accessories[v.Name][2])
 			end
