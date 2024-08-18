@@ -2,11 +2,12 @@
 -- getSpeed func is iffy. i'll work on it soon enough.
 -- use this as you would a module (it's object oriented!)
 -- old tutorial on how to use this: https://www.youtube.com/watch?v=TMRx-xR7vR4
-
 local TS = game:GetService("TweenService");
-local count2;
-local maxcount2;
-local count;
+local Main = {}
+local AnimationLoader = {}
+local AnimationTrack = {}
+Main.__index = Main
+
 local function getnext(tbl,number)
 	local c=100
 	local rtrnv=0
@@ -18,152 +19,130 @@ local function getnext(tbl,number)
 	end
 	return(rtrnv)
 end
+
 local function kftotbl(kf)
 	local tbl3 = {}
 	for i,v in pairs(kf:GetDescendants()) do
 		if v:IsA("Pose") then
-			tbl3[string.sub(v.Name,1,1)..string.sub(v.Name,#v.Name,#v.Name)] = v.CFrame
+			tbl3[v.Name] = {v.CFrame,v.EasingStyle,v.EasingDirection}
 		end
 	end
 	return(tbl3)
 end
+
 local function getSpeed(lastTimeStamp: number, currentTimeStamp: number)
 	if currentTimeStamp == 0 then return 0 end
-    return math.abs(lastTimeStamp - currentTimeStamp) * 2
+    return math.abs(lastTimeStamp - currentTimeStamp)
 end
 
 local function getAnimation(animationId: string)
 	local animationObject
 	local S,E = pcall(function()
-		--animationObject = game:GetService("InsertService"):LoadAsset(animationId):GetChildren()[1]
+		--animationObject = game:GetService("InsertService"):LoadAsset(animationId):GetChildren()[1] -- for studio
 		animationObject = game:GetObjects(animationId)[1]
 	end)
 	return animationObject
 end
 
-local Main = {}
-Main.__index = Main
+function AnimationLoader:AddElement(Name: string, Part0: BasePart, Part1: BasePart, StartCFrame: CFrame?): nil
+    assert(typeof(Name) == "string", "first argument is the name of the motor6d")
+    assert(typeof(Part0) == "Instance", "second argument is Part0")
+    assert(typeof(Part1) == "Instance", "third argument is Part1")
+    assert(Part0 == Part1, "Part0 and Part1 cannot be the same")
+    if not StartCFrame then StartCFrame = CFrame.new(0,0,0) end
 
-function Main.loadDummy(DummyChar: Model)
-	local metatable = {}
-	
-	setmetatable(metatable, Main)
+    local m6d = Instance.new("Motor6D")
+    m6d.Parent = Part0
+    m6d.Part0 = Part0
+    m6d.Part1 = Part1
+    m6d.C0 = StartCFrame
 
-	metatable.char = DummyChar
-
-	return metatable
+    return nil
 end
 
-
-function Main:LoadAnimation(animationId: string)
+function AnimationLoader:LoadAnimation(animationId: string)
 	local Character = self.char
 	local animationObject = getAnimation(animationId)
-	if animationObject == nil then return end
-	print(animationObject)
-	local metatable = {}
+	if animationObject == nil then error("animation doesn't exist") end
 
-	setmetatable(metatable, Main)
+	local t = table.clone(AnimationTrack)
 	
-	metatable.char = Character
-	metatable.animObject = animationObject
+	t.char = Character
+	t.animObject = AnimationTrack
 
-	return metatable
+	return t
 end
 
-
-function Main:Play()
+function AnimationTrack:Play(): nil
 	local Character = self.char
 	local animationObject = self.animObject
 	local Looped = animationObject.Loop
-	local anim={}
+	local anim = {}
+    local defaultC0s = {}
+    local count
+
 	for i,v in pairs(animationObject:GetChildren()) do
 		if v:IsA("Keyframe") then
 			anim[v.Time]=kftotbl(v)
 		end
 	end
-	local LH = Character.Torso["Left Hip"].C0
-	local RH = Character.Torso["Right Hip"].C0
-	local LS = Character.Torso["Left Shoulder"].C0
-	local RS = Character.Torso["Right Shoulder"].C0
-	local RoH = Character.HumanoidRootPart["RootJoint"].C0
-	local N = Character.Torso["Neck"].C0
+    for _,motor in ipairs(Character:GetDescendants()) do
+        if motor:IsA("Motor6D") then
+            defaultC0s[motor.Name] = motor.C0
+        end
+    end
+
 	count = -1
 	local lastTimeStamp = 0
-	local char=Character
 	self.played = false
-	while task.wait() do
-		if self.played then 
-			Character.Torso["Left Hip"].C0 = LH
-			Character.Torso["Right Hip"].C0 = RH
-			Character.Torso["Left Shoulder"].C0 = LS
-			Character.Torso["Right Shoulder"].C0 = RS
-			Character.HumanoidRootPart["RootJoint"].C0 = RoH
-			Character.Torso["Neck"].C0 = N
-			break 
-		end
-		if not Looped then 
-			self.played = true
-		end	
-		for i,oasjdadlasdkadkldjkl in pairs(anim) do
-			local asdf=getnext(anim,count)
-			local v=anim[asdf]
- 
-			count2=0
-			maxcount2=asdf-count
-			count=asdf
-			wait(asdf-count)
-			count2=maxcount2
-			if v["Lg"] then
-
-				local Ti = TweenInfo.new(getSpeed(lastTimeStamp,asdf))
-				
-				TS:Create(Character.Torso["Left Hip"] , Ti, {C0 = LH*v["Lg"]}):Play()
-				
-			end
-			if v["Rg"] then
-
-				local Ti = TweenInfo.new(getSpeed(lastTimeStamp,asdf))
-
-				TS:Create(Character.Torso["Right Hip"] , Ti, {C0 = RH*v["Rg"]}):Play()
-				
-			end
-			if v["Lm"] then
-
-				local Ti = TweenInfo.new(getSpeed(lastTimeStamp,asdf))
-
-				TS:Create(Character.Torso["Left Shoulder"] , Ti, {C0 = LS*v["Lm"]}):Play()
-
-			end
-			if v["Rm"] then
-
-				local Ti = TweenInfo.new(getSpeed(lastTimeStamp,asdf))
-
-				TS:Create(Character.Torso["Right Shoulder"] , Ti, {C0 = RS*v["Rm"]}):Play()
-
-			end
-			if v["To"] then
-
-				local Ti = TweenInfo.new(getSpeed(lastTimeStamp,asdf))
-
-				TS:Create(Character.HumanoidRootPart["RootJoint"] , Ti, {C0 = RoH*v["To"]}):Play()
-
-			end
-			if v["Hd"] then
-
-				local Ti = TweenInfo.new(getSpeed(lastTimeStamp,asdf))
-
-				TS:Create(Character.Torso["Neck"] , Ti, {C0 = N*v["Hd"]}):Play()
-				
-			end
-			task.wait(getSpeed(lastTimeStamp,asdf))
-			lastTimeStamp = asdf
-		end
-	end
-	
+    coroutine.wrap(function()
+    	while task.wait() do
+            if self.played then 
+                for _,motor in ipairs(Character:GetDescendants()) do
+                    if motor:IsA("Motor6D") and defaultC0s[motor.Name] then
+                        motor.C0 = defaultC0s[motor.Name]
+                    end
+                end
+                break 
+            end
+            if not Looped then 
+                self.played = true
+            end	
+            for i,oasjdadlasdkadkldjkl in pairs(anim) do
+                local asdf=getnext(anim,count)
+                local v=anim[asdf]
+                count=asdf
+    
+                for name,info in pairs(v) do
+                    coroutine.wrap(function()
+                        for _,motor in ipairs(Character:GetDescendants()) do
+                            if motor.Name == name and motor:IsA("Motor6D") then
+                                local cf, style, dir = table.unpack(info)
+                                local Ti = TweenInfo.new(getSpeed(lastTimeStamp,asdf),Enum.EasingStyle[style.Name],Enum.EasingDirection[dir.Name])
+                                
+                                TS:Create(motor, Ti, {C0 = defaultC0s[motor.Name]*cf}):Play()
+                            end
+                        end
+                    end)()
+                end
+    
+                task.wait(getSpeed(lastTimeStamp,asdf))
+                lastTimeStamp = asdf
+            end
+        end
+    end)()
 end
 
-function Main:Stop()
+function AnimationTrack:Stop(): nil
 	self.played = true
+end
+
+function Main.loadDummy(DummyChar: Model)
+	local t = table.clone(AnimationLoader)
+
+	t.char = DummyChar
+
+	return t
 end
 
 return Main
