@@ -60,10 +60,6 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
                     if not v:FindFirstChild("Handle") then
                         con:Disconnect()
                     end
-                    if v.Name == Accessories["FlingPart"][1] and flingCooldown then 
-                        v.Handle.AssemblyLinearVelocity = Vector3.new(9999,9999,9999) 
-                        return
-                    end
                     v.Handle.AssemblyLinearVelocity = velocity       
                 end)
             end)
