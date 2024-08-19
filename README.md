@@ -1,13 +1,9 @@
-### mostly stable
+### pretty much stable, waiting for a good executor to help debug.
 
 # loadlua's Hatdrop Reanimation
 feel free to use these in your hubs, but please credit me! this github will contain all the premade FE Scripts i've made with hatdrop. if you've got any questions, hmu on discord (loadlua)
 
 # Known Issues
-* Flickering
-
-  Partially resolved, waiting for a better executor to help debug.
-
 * Jitter
 
   Jitterless soon dw :(
@@ -15,7 +11,7 @@ feel free to use these in your hubs, but please credit me! this github will cont
 ## AKNOWLEDGE THAT...
 you will have to make everything else on you own, such as:
 * default accessories system, like myworld's
-* fling until i find out how to not be shit at programming
+* more idk
 
 # Credits
 * MyWorld for supposedly coming up with using FPDH
