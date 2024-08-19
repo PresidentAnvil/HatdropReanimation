@@ -1,9 +1,11 @@
 -- set/gethiddenproperty required
+-- sorry for it not being clean
+
 r=math.rad
 ca=CFrame.Angles
 cn=CFrame.new
 
-getgenv().velocity = Vector3.new(20,20,20)
+getgenv().velocity = Vector3.new(15,15,15)
 getgenv().viewdeath = false
 getgenv().Accessories = {
 	-- Limb/Part name | {Accessory name, offset}
@@ -21,10 +23,31 @@ local fph = workspace.FallenPartsDestroyHeight
 local Accessories = getgenv().Accessories
 local mouse = plr:GetMouse()
 local ps = game:GetService("RunService").PostSimulation
-local printdebug = true
 local FakeCharacter
 local flingCooldown
-local flingpart
+local flingpart = Instance.new("Part")
+flingpart.Parent = workspace
+flingpart.Anchored = true
+flingpart.CanCollide = false
+--flingpart.Transparency = 1
+
+function DamageFling(char)
+    if not FakeCharacter then return end
+    if Accessories.FlingPart[1] == "" then return end
+    if flingCooldown then return end
+    if true then return end -- fling is annoying to make i give up bc i dont feel like ittttt
+
+    flingCooldown=true
+
+    local con;con=ps:Connect(function()
+        if not char:FindFirstChild("HumanoidRootPart") then con:Disconnect() return end
+        flingpart.CFrame = char.HumanoidRootPart.CFrame
+    end)
+    task.delay(1,function()
+        con:Disconnect()
+        flingCooldown=false
+    end)
+end
 
 function complexfind(t,c)
 	-- table.find is Bad i domp like irwt
@@ -52,32 +75,28 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
     loadanim.TimePosition = 3.24
     loadanim:AdjustSpeed(0)
     local a = FakeCharacter.HumanoidRootPart.CFrame
-    for i, v in c.Humanoid:GetAccessories() do
+    for i, v in ipairs(c.Humanoid:GetAccessories()) do
         sethiddenproperty(v,"BackendAccoutrementState",0)
-        local limb, info = complexfind(Accessories,v.Name)
-        local isleghat = limb:find("Leg")
 
 
-        task.delay(0.7+.8,function()
+        task.delay(0.65,function()
             local con;con = game:GetService"RunService".PostSimulation:Connect(function(dt)
                 pcall(function()
                     if not v:FindFirstChild("Handle") then
                         con:Disconnect()
                     end
-                    if isleghat then
-                        v.Handle.CanCollide = false
-                    end
-                    v.Handle.AssemblyLinearVelocity = velocity               
+                    v.Handle.AssemblyLinearVelocity = velocity       
                 end)
             end)
         end)
     end
     hrp.CFrame *= CFrame.Angles(math.rad(90),0,0)
     c.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    game:GetService("TweenService"):Create(hrp,TweenInfo.new(1.8,Enum.EasingStyle.Linear),{CFrame = CFrame.new(a.X,fph+6,a.Z)* ca(r(90),0,0)}):Play()
+    game:GetService("TweenService"):Create(hrp,TweenInfo.new(0.8,Enum.EasingStyle.Linear),{CFrame = CFrame.new(a.X,fph+5,a.Z)* ca(r(90),0,0)}):Play()
     local t = {}
     c.ChildRemoved:Connect(function(v)
         if v:IsA("BasePart") then
+            print(v.Name)
             table.insert(t,v.Name)
         end
     end)
@@ -88,22 +107,28 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
             hrp.AssemblyAngularVelocity = Vector3.zero
         end
     end)()
-    task.wait(0.85+.8)
+    task.wait(0.75)
     c.Humanoid.Health = 0
 	callback(c.Humanoid:GetAccessories())
-    local stopat = tick()+2
-    repeat task.wait() until t[7] or tick()>stopat
-    if t[7] == "Head" and t[1] == "HumanoidRootPart" then
-        print("Your hats got collision")
+    local stop=tick()+1.5
+    repeat task.wait() until tick()>stop or t[7]
+    if t[1]=="HumanoidRootPart"and t[7]=="Head"then
+        print("CanCollide")
     else
-        print("Body parts were deleted out of order. You may not have gotten collision")
+        print("No CanCollide")
     end
 end
 
-function Align(Part1,Part0,CFrameOffset) 
+function Align(Part1,Part0,CFrameOffset)
+    local cf = CFrame.new(FakeCharacter.HumanoidRootPart.CFrame.X,fph+15,FakeCharacter.HumanoidRootPart.CFrame.Z)
+    local align = false
     local con;con=ps:Connect(function()
         if Part1.Parent == nil then con:Disconnect() return end
-        Part1.CFrame = Part0.CFrame * CFrameOffset
+        if align then cf = Part0.CFrame*CFrameOffset end
+        Part1.CFrame = cf
+    end)
+    task.delay(1,function()
+        align = true
     end)
 end
 
@@ -114,98 +139,96 @@ do
 	FakeCharacter = RealChar:Clone()
 	FakeCharacter.Name = FakeCharacter.Name.."_fake"
 	FakeCharacter.Parent = workspace
-	
-	do
-		-- fake movement (pasted from some really really old reanimation :P)
-		
-		local LVecPart = Instance.new("Part", workspace) 
-		LVecPart.CanCollide = false 
-		LVecPart.Transparency = 1
-		local walk = Instance.new("Animation",FakeCharacter)
-		walk.AnimationId = "http://www.roblox.com/asset/?id=180426354"
-		local walka = FakeCharacter.Humanoid:LoadAnimation(walk)
-		local jump = Instance.new("Animation",FakeCharacter)
-		jump.AnimationId = "http://www.roblox.com/asset/?id=125750702"
-		local jumpa = FakeCharacter.Humanoid:LoadAnimation(jump)
-		local CONVEC
-		local function VECTORUNIT()
-			if HumanDied then CONVEC:Disconnect(); return end
-			local lookVec = workspace.Camera.CFrame.lookVector
-			local Root = FakeCharacter["HumanoidRootPart"]
-			LVecPart.Position = Root.Position
-			LVecPart.CFrame = CFrame.new(LVecPart.Position, Vector3.new(lookVec.X * 9999, lookVec.Y, lookVec.Z * 9999))
-		end
-		CONVEC = game:GetService("RunService").Heartbeat:Connect(VECTORUNIT)
-		local CONDOWN
-		local WDown, ADown, SDown, DDown, SpaceDown = false, false, false, false, false
-		local function KEYDOWN(_,Processed) 
-			if HumanDied then CONDOWN:Disconnect(); return end
-			if Processed ~= true then
-				local Key = _.KeyCode
-				if Key == Enum.KeyCode.W then
-					WDown = true end
-				if Key == Enum.KeyCode.A then
-					ADown = true end
-				if Key == Enum.KeyCode.S then
-					SDown = true end
-				if Key == Enum.KeyCode.D then
-					DDown = true end
-				if Key == Enum.KeyCode.Space then
-					SpaceDown = true 
-				end 
-			end 
-		end
-		CONDOWN = game:GetService("UserInputService").InputBegan:Connect(KEYDOWN)
+    for i, v in ipairs(FakeCharacter:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.Transparency = 1
+        elseif v:IsA("Decal") then
+            v.Transparency = 1
+        end
+    end
+    do
+        -- fake movement (pasted from some really really old reanimation :P)
+        
+        local LVecPart = Instance.new("Part", workspace) 
+        LVecPart.CanCollide = false 
+        LVecPart.Transparency = 1
+        local walk = Instance.new("Animation",FakeCharacter)
+        walk.AnimationId = "http://www.roblox.com/asset/?id=180426354"
+        local walka = FakeCharacter.Humanoid:LoadAnimation(walk)
+        local jump = Instance.new("Animation",FakeCharacter)
+        jump.AnimationId = "http://www.roblox.com/asset/?id=125750702"
+        local jumpa = FakeCharacter.Humanoid:LoadAnimation(jump)
+        local CONVEC
+        local function VECTORUNIT()
+            if HumanDied then CONVEC:Disconnect(); return end
+            local lookVec = workspace.Camera.CFrame.lookVector
+            local Root = FakeCharacter["HumanoidRootPart"]
+            LVecPart.Position = Root.Position
+            LVecPart.CFrame = CFrame.new(LVecPart.Position, Vector3.new(lookVec.X * 9999, lookVec.Y, lookVec.Z * 9999))
+        end
+        CONVEC = game:GetService("RunService").Heartbeat:Connect(VECTORUNIT)
+        local CONDOWN
+        local WDown, ADown, SDown, DDown, SpaceDown = false, false, false, false, false
+        local function KEYDOWN(_,Processed) 
+            if HumanDied then CONDOWN:Disconnect(); return end
+            if Processed ~= true then
+                local Key = _.KeyCode
+                if Key == Enum.KeyCode.W then
+                    WDown = true end
+                if Key == Enum.KeyCode.A then
+                    ADown = true end
+                if Key == Enum.KeyCode.S then
+                    SDown = true end
+                if Key == Enum.KeyCode.D then
+                    DDown = true end
+                if Key == Enum.KeyCode.Space then
+                    SpaceDown = true 
+                end 
+            end 
+        end
+        CONDOWN = game:GetService("UserInputService").InputBegan:Connect(KEYDOWN)
 
-		local CONUP
-		local function KEYUP(_,a)
-			if a then return end
-			if HumanDied then CONUP:Disconnect(); return end
-			local Key = _.KeyCode
-			if Key == Enum.KeyCode.W then
-				WDown = false end
-			if Key == Enum.KeyCode.A then
-				ADown = false end
-			if Key == Enum.KeyCode.S then
-				SDown = false end
-			if Key == Enum.KeyCode.D then
-				DDown = false end
-			if Key == Enum.KeyCode.Space then
-				SpaceDown = false end 
-		end
-		CONUP = game:GetService("UserInputService").InputEnded:Connect(KEYUP)
+        local CONUP
+        local function KEYUP(_,a)
+            if a then return end
+            if HumanDied then CONUP:Disconnect(); return end
+            local Key = _.KeyCode
+            if Key == Enum.KeyCode.W then
+                WDown = false end
+            if Key == Enum.KeyCode.A then
+                ADown = false end
+            if Key == Enum.KeyCode.S then
+                SDown = false end
+            if Key == Enum.KeyCode.D then
+                DDown = false end
+            if Key == Enum.KeyCode.Space then
+                SpaceDown = false end 
+        end
+        CONUP = game:GetService("UserInputService").InputEnded:Connect(KEYUP)
 
-		local function MoveClone(X,Y,Z)
-			LVecPart.CFrame = LVecPart.CFrame * CFrame.new(-X,Y,-Z)
-			FakeCharacter.Humanoid.WalkToPoint = LVecPart.Position
-		end
+        local function MoveClone(X,Y,Z)
+            LVecPart.CFrame = LVecPart.CFrame * CFrame.new(-X,Y,-Z)
+            FakeCharacter.Humanoid.WalkToPoint = LVecPart.Position
+        end
 
-		coroutine.wrap(function() 
-			while true do game:GetService("RunService").RenderStepped:Wait()
-				if HumanDied then break end
-				if WDown then  MoveClone(0,0,1e4) if walka.IsPlaying ~= true then walka:Play() end end
-				if ADown then MoveClone(1e4,0,0) if walka.IsPlaying ~= true then walka:Play() end end
-				if SDown then MoveClone(0,0,-1e4) if walka.IsPlaying ~= true then walka:Play() end end
-				if DDown then MoveClone(-1e4,0,0) if walka.IsPlaying ~= true then walka:Play() end end
-				if SpaceDown then FakeCharacter["Humanoid"].Jump = true if jumpa.IsPlaying ~= true then jumpa:Play() end end
-				if WDown ~= true and ADown ~= true and SDown ~= true and DDown ~= true and SpaceDown ~= true then
-					walka:Stop()
-					FakeCharacter.Humanoid.WalkToPoint = FakeCharacter.HumanoidRootPart.Position end
-			end 
-		end)()
-	end
-
-	for i, v in ipairs(FakeCharacter:GetDescendants()) do
-		if v:IsA("BasePart") then
-			v.Transparency = 1
-		elseif v:IsA("Decal") then
-			v.Transparency = 1
-		end
-	end
-ps:Connect(function()
-    if getgenv().viewdeath then return end
-	workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
-end)
+        coroutine.wrap(function() 
+            while true do game:GetService("RunService").RenderStepped:Wait()
+                if HumanDied then break end
+                if WDown then  MoveClone(0,0,1e4) if walka.IsPlaying ~= true then walka:Play() end end
+                if ADown then MoveClone(1e4,0,0) if walka.IsPlaying ~= true then walka:Play() end end
+                if SDown then MoveClone(0,0,-1e4) if walka.IsPlaying ~= true then walka:Play() end end
+                if DDown then MoveClone(-1e4,0,0) if walka.IsPlaying ~= true then walka:Play() end end
+                if SpaceDown then FakeCharacter["Humanoid"].Jump = true if jumpa.IsPlaying ~= true then jumpa:Play() end end
+                if WDown ~= true and ADown ~= true and SDown ~= true and DDown ~= true and SpaceDown ~= true then
+                    walka:Stop()
+                    FakeCharacter.Humanoid.WalkToPoint = FakeCharacter.HumanoidRootPart.Position end
+            end 
+        end)()
+    end
+    ps:Connect(function()
+        if getgenv().viewdeath then return end
+        workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
+    end)
 	HatdropCallback(RealChar, function(hats, dropped)
         Accessories = getgenv().Accessories
 		for i,v in pairs(FakeCharacter:GetChildren()) do
@@ -225,6 +248,10 @@ end)
 	end)
 end
 
+coroutine.wrap(function()
+-- non fe script here
+end)()
+
 ps:Connect(function()
 	for i, v in ipairs(FakeCharacter:GetDescendants()) do
 		if v:IsA("BasePart") then
@@ -234,22 +261,29 @@ ps:Connect(function()
 end)
 
 plr.CharacterAdded:Connect(function(c)
-	task.wait(0.3)
+	task.wait(0.35)
 	HatdropCallback(c, function(hats, dropped)
         Accessories = getgenv().Accessories
 		for i,v in pairs(FakeCharacter:GetChildren()) do
-			if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" and Accessories[v.Name][1] ~= "" then
-                local hat
-                for i,h in pairs(hats) do
-                    if h.Name == Accessories[v.Name][1] and h:FindFirstChild("Handle") then
-                        hat = h
-                        continue
+            pcall(function()
+                if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" and Accessories[v.Name][1] ~= "" then
+                    local hat
+                    for i,h in pairs(hats) do
+                        if h.Name == Accessories[v.Name][1] and h:FindFirstChild("Handle") then
+                            hat = h
+                            continue
+                        end
                     end
+                    if not hat then return end
+                    hat.Parent = FakeCharacter
+                    Align(hat.Handle,FakeCharacter[v.Name],Accessories[v.Name][2])
                 end
-                if not hat then continue end
-                hat.Parent = FakeCharacter
-				Align(hat.Handle,FakeCharacter[v.Name],Accessories[v.Name][2])
-			end
+            end)
+		end
+
+		if FakeCharacter:FindFirstChild(Accessories["FlingPart"][1]) then
+			hat.Parent = FakeCharacter
+			Align(FakeCharacter[Accessories["FlingPart"][1]],flingpart,CFrame.new(0,0,0))
 		end
 	end)
 end)

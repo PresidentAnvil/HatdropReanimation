@@ -1,4 +1,4 @@
-### kinda unstable rn
+### mostly stable
 
 # loadlua's Hatdrop Reanimation
 feel free to use these in your hubs, but please credit me! this github will contain all the premade FE Scripts i've made with hatdrop. if you've got any questions, hmu on discord (loadlua)
@@ -6,11 +6,11 @@ feel free to use these in your hubs, but please credit me! this github will cont
 # Known Issues
 * Flickering
 
-  ![Flickering](./videos/flicker.gif)
+  Partially resolved, waiting for a better executor to help debug.
 
 * Jitter
 
-  No footage (too lazy)
+  Jitterless soon dw :(
 
 ## AKNOWLEDGE THAT...
 you will have to make everything else on you own, such as:
