@@ -53,8 +53,7 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
     for i, v in ipairs(c.Humanoid:GetAccessories()) do
         sethiddenproperty(v,"BackendAccoutrementState",0)
 
-
-        task.delay(0.65,function()
+        task.delay(0.5,function()
             local con;con = game:GetService"RunService".PostSimulation:Connect(function(dt)
                 pcall(function()
                     if not v:FindFirstChild("Handle") then
@@ -67,31 +66,24 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
     end
     hrp.CFrame *= CFrame.Angles(math.rad(90),0,0)
     c.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    game:GetService("TweenService"):Create(hrp,TweenInfo.new(0.8,Enum.EasingStyle.Linear),{CFrame = CFrame.new(a.X,fph+40,a.Z)* ca(r(90),0,0)}):Play()
-    local t = {}
+    local con;con=ps:Connect(function()
+        hrp.AssemblyLinearVelocity = Vector3.zero
+        hrp.AssemblyAngularVelocity = Vector3.zero
+        hrp.CFrame = CFrame.new(a.X,fph+10,a.Z)* ca(r(90),0,0)
+    end)
     c.ChildRemoved:Connect(function(v)
         if v:IsA("BasePart") then
             print(v.Name)
-            table.insert(t,v.Name)
         end
     end)
-    coroutine.wrap(function()
-        while hrp.Parent ~= nil do
-            game:GetService("RunService").PostSimulation:Wait()
-            hrp.AssemblyLinearVelocity = Vector3.zero
-            hrp.AssemblyAngularVelocity = Vector3.zero
-        end
-    end)()
-    task.wait(0.75)
+    task.wait(0.6)
+    con:Disconnect()
+    con=nil
     c.Humanoid.Health = 0
-	callback(c.Humanoid:GetAccessories())
-    local stop=tick()+1.5
-    repeat task.wait() until tick()>stop or t[7]
-    if t[1]=="HumanoidRootPart"and t[7]=="Head"then
-        print("CanCollide")
-    else
-        print("No CanCollide")
+    for i, v in ipairs(c.Humanoid:GetAccessories()) do
+        sethiddenproperty(v,"BackendAccoutrementState",4)
     end
+	callback(c.Humanoid:GetAccessories())
 end
 
 function Align(Part1,Part0,CFrameOffset)
@@ -102,7 +94,7 @@ function Align(Part1,Part0,CFrameOffset)
         if align then cf = Part0.CFrame*CFrameOffset end
         Part1.CFrame = cf
     end)
-    task.delay(1,function()
+    task.delay(0.7,function()
         align = true
     end)
 end
