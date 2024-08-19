@@ -76,16 +76,21 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
     loadanim.TimePosition = 3.24
     loadanim:AdjustSpeed(0)
     local a = FakeCharacter.HumanoidRootPart.CFrame
+    local changedevents = {}
     for i, v in ipairs(c.Humanoid:GetAccessories()) do
         sethiddenproperty(v,"BackendAccoutrementState",0)
-
+        table.insert(changedevents,v.Changed:Connect(function(s)
+            if s == "BackendAccoutrementState" then
+                sethiddenproperty(v,"BackendAccoutrementState",0)
+            end
+        end))
         task.delay(0.5,function()
             local con;con = game:GetService"RunService".PostSimulation:Connect(function(dt)
                 pcall(function()
                     if not v:FindFirstChild("Handle") then
                         con:Disconnect()
                     end
-		    if v.Name == Accessories["FlingPart"][1] and flingCooldown then 
+                    if v.Name == Accessories["FlingPart"][1] and flingCooldown then 
                         v.Handle.AssemblyLinearVelocity = Vector3.new(9999,9999,9999) 
                         return
                     end
@@ -99,7 +104,7 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
     local con;con=ps:Connect(function()
         hrp.AssemblyLinearVelocity = Vector3.zero
         hrp.AssemblyAngularVelocity = Vector3.zero
-        hrp.CFrame = CFrame.new(a.X,fph+10,a.Z)* ca(r(90),0,0)
+        hrp.CFrame = CFrame.new(a.X,fph+5,a.Z)* ca(r(90),0,0)
     end)
     c.ChildRemoved:Connect(function(v)
         if v:IsA("BasePart") then
@@ -110,10 +115,13 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
     con:Disconnect()
     con=nil
     c.Humanoid.Health = 0
+    for i, v in ipairs(changedevents) do
+        v:Disconnect()
+    end
     for i, v in ipairs(c.Humanoid:GetAccessories()) do
         sethiddenproperty(v,"BackendAccoutrementState",4)
     end
-	callback(c.Humanoid:GetAccessories())
+    callback(c.Humanoid:GetAccessories())
 end
 
 function Align(Part1,Part0,CFrameOffset)
