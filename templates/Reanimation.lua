@@ -15,7 +15,6 @@ getgenv().Accessories = {
 	["Left Leg"] = {"BrownCharmerHair",ca(0,0,r(90))},
 	["Torso"] = {"MeshPartAccessory",ca(0,0,-r(14))},
 	["Head"] = {"MediHood",cn(0,0,0.2)},
-	["FlingPart"] = {"",cn(0,0,0)}
 }
 ------------------------------------------------------------------------------------------------------------------------
 local plr = game.Players.LocalPlayer
@@ -24,30 +23,6 @@ local Accessories = getgenv().Accessories
 local mouse = plr:GetMouse()
 local ps = game:GetService("RunService").PostSimulation
 local FakeCharacter
-local flingCooldown
-local flingpart = Instance.new("Part")
-flingpart.Parent = workspace
-flingpart.Anchored = true
-flingpart.CanCollide = false
---flingpart.Transparency = 1
-
-function DamageFling(char)
-    if not FakeCharacter then return end
-    if Accessories.FlingPart[1] == "" then return end
-    if flingCooldown then return end
-    if true then return end -- fling is annoying to make i give up bc i dont feel like ittttt
-
-    flingCooldown=true
-
-    local con;con=ps:Connect(function()
-        if not char:FindFirstChild("HumanoidRootPart") then con:Disconnect() return end
-        flingpart.CFrame = char.HumanoidRootPart.CFrame
-    end)
-    task.delay(1,function()
-        con:Disconnect()
-        flingCooldown=false
-    end)
-end
 
 function complexfind(t,c)
 	-- table.find is Bad i domp like irwt
@@ -85,6 +60,10 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
                     if not v:FindFirstChild("Handle") then
                         con:Disconnect()
                     end
+                    if v.Name == Accessories["FlingPart"][1] and flingCooldown then 
+                        v.Handle.AssemblyLinearVelocity = Vector3.new(9999,9999,9999) 
+                        return
+                    end
                     v.Handle.AssemblyLinearVelocity = velocity       
                 end)
             end)
@@ -92,7 +71,7 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
     end
     hrp.CFrame *= CFrame.Angles(math.rad(90),0,0)
     c.Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    game:GetService("TweenService"):Create(hrp,TweenInfo.new(0.8,Enum.EasingStyle.Linear),{CFrame = CFrame.new(a.X,fph+5,a.Z)* ca(r(90),0,0)}):Play()
+    game:GetService("TweenService"):Create(hrp,TweenInfo.new(0.8,Enum.EasingStyle.Linear),{CFrame = CFrame.new(a.X,fph+40,a.Z)* ca(r(90),0,0)}):Play()
     local t = {}
     c.ChildRemoved:Connect(function(v)
         if v:IsA("BasePart") then
@@ -120,7 +99,7 @@ function HatdropCallback(character: Model, callback: Function, yeild: bool?)
 end
 
 function Align(Part1,Part0,CFrameOffset)
-    local cf = CFrame.new(FakeCharacter.HumanoidRootPart.CFrame.X,fph+15,FakeCharacter.HumanoidRootPart.CFrame.Z)
+    local cf = CFrame.new(FakeCharacter.HumanoidRootPart.CFrame.X,fph+30,FakeCharacter.HumanoidRootPart.CFrame.Z)
     local align = false
     local con;con=ps:Connect(function()
         if Part1.Parent == nil then con:Disconnect() return end
@@ -249,7 +228,7 @@ do
 end
 
 coroutine.wrap(function()
--- non fe script here
+    -- non fe script here
 end)()
 
 ps:Connect(function()
@@ -279,11 +258,6 @@ plr.CharacterAdded:Connect(function(c)
                     Align(hat.Handle,FakeCharacter[v.Name],Accessories[v.Name][2])
                 end
             end)
-		end
-
-		if FakeCharacter:FindFirstChild(Accessories["FlingPart"][1]) then
-			hat.Parent = FakeCharacter
-			Align(FakeCharacter[Accessories["FlingPart"][1]],flingpart,CFrame.new(0,0,0))
 		end
 	end)
 end)
