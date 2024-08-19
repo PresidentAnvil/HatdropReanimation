@@ -1,4 +1,5 @@
 ### pretty much stable, waiting for a good executor to help debug.
+### this was all tested on Solara. if you have a better executor, please let me know how the script(s) are performing.
 
 # loadlua's Hatdrop Reanimation
 feel free to use these in your hubs, but please credit me! this github will contain all the premade FE Scripts i've made with hatdrop. if you've got any questions, hmu on discord (loadlua)
