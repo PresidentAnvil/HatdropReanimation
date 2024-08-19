@@ -9,12 +9,12 @@ getgenv().velocity = Vector3.new(15,15,15)
 getgenv().viewdeath = false
 getgenv().Accessories = {
 	-- Limb/Part name | {Accessory name, offset}
-	["Left Arm"] = {"MessyHair",ca(0,0,r(90))},
-	["Right Arm"] = {"Pal Hair",ca(0,0,-r(90))},
-	["Right Leg"] = {"Hat1",ca(0,0,r(90))},
-	["Left Leg"] = {"BrownCharmerHair",ca(0,0,r(90))},
-	["Torso"] = {"MeshPartAccessory",ca(0,0,-r(14))},
-	["Head"] = {"MediHood",cn(0,0,0.2)},
+	["Left Arm"] = {"",ca(0,0,r(90))},
+	["Right Arm"] = {"",ca(0,0,-r(90))},
+	["Right Leg"] = {"",ca(0,0,r(90))},
+	["Left Leg"] = {"",ca(0,0,r(90))},
+	["Torso"] = {"",ca(0,0,-r(14))},
+	["Head"] = {"",cn(0,0,0.2)},
 	["FlingPart"] = {"",cn(0,0,0)}
 }
 ------------------------------------------------------------------------------------------------------------------------
