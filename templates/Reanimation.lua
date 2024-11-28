@@ -109,7 +109,6 @@ function HatdropCallback(Character, callback)
         v:Disconnect()
     end
     for i,v in pairs(allhats) do
-        print(v[1].Handle)
         sethiddenproperty(v[1],"BackendAccoutrementState",4)
     end
 
@@ -213,6 +212,7 @@ HatdropCallback(Player.Character, function(allhats)
 
         v.Parent=FakeCharacter
         Align(v[1].Handle,limb,CFrame.new(0,0,0))
+        v[1].Handle.CanCollide=false
     end
 end)
 
@@ -224,6 +224,7 @@ getgenv().conn = Player.CharacterAdded:Connect(function(Character)
 
             v.Parent=FakeCharacter
             Align(v[1].Handle,limb,CFrame.new(0,0,0))
+            v[1].Handle.CanCollide=false
         end
     end)
 end)
