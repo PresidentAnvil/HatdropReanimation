@@ -1,4 +1,4 @@
-### Solara support only!! Synapse Z has fucked up net. This might work on other external executors tho... Feel free to test and lmk
+### this works on every executor but Synapse Z. Synapse Z as bad net.
 
 # PresidentAnvil's Hatdrop Reanimation
 this adds collision to ur hats
