@@ -16,4 +16,4 @@ you will have to make everything else on you own, such as:
 
 # Credits
 * Plusgiant5 for helping.
-* ShownApe for his [hatdrop](https://github.com/ShownApe/hatdrop) script having a couple good concepts that I used.
+* ShownApe for his [hatdrop](https://github.com/ShownApe/hatdrop) script having a couple good concepts that I used. also digitality's [hatdrop](https://github.com/PresidentAnvil/hatdrop) for the same reason
