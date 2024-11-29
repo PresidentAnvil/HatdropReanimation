@@ -2,7 +2,7 @@
 -- ctrl+f "non fe script here" to find the place to convert non fe scripts
 -- automatically detects unassigned hats to use as fling parts
 -- i've only tested this on solara is it works like 92% of the time with other players and 100% of the time by urself
--- synapse z doesnt support hatdrop :(
+-- rejoining breaks hatdrop collision!!
 
 getgenv().walkspeed = 35
 getgenv().velocity = Vector3.new(15,15,15)
