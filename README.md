@@ -1,4 +1,4 @@
-### this works on every executor but Synapse Z. Synapse Z as bad net.
+### this works on EVERY executor. make sure not to rejoin servers or it will break the script.
 
 # PresidentAnvil's Hatdrop Reanimation
 this adds collision to ur hats
