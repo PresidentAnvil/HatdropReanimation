@@ -1,4 +1,6 @@
 -- dear digitality
+ws=workspace
+p=game.Players.LocalPlayer
 pcall(function()
     sethiddenproperty(hum, "InternalBodyScale", Vector3.new(9e9,9e9,9e9))
 end)
