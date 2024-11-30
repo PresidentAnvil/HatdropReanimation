@@ -1,67 +1,25 @@
 -- gale fighter demo
 -- automatically detects unassigned hats and uses them to fling
 -- i've only tested this on solara is it works like 92% of the time with other players and 100% of the time by urself
--- synapse z doesnt support hatdrop :(
 
 getgenv().walkspeed = 35
 getgenv().velocity = Vector3.new(15,15,15)
 getgenv().flingvelocity = Vector3.new(999999,999999,999999)
 getgenv().Accessories = {
-	-- Limb/Part name | {Accessory name, offset}
-	["Left Arm"] = {"Kate Hair",CFrame.Angles(0,0,math.rad(90))},
-	["Right Arm"] = {"Hat1",CFrame.Angles(0,0,-math.rad(90))},
-	["Right Leg"] = {"SidePonytail",CFrame.Angles(0,0,math.rad(0))},
-	["Left Leg"] = {"LongStraightHair",CFrame.Angles(0,0,math.rad(0))},
-	["Torso"] = {"MeshPartAccessory",CFrame.Angles(0,0,-math.rad(14))},
-	["Head"] = {"MediHood",CFrame.new(0,0,0.2)},
+	-- Limb/Part name | {{Accessory name}, {offset}}
+    -- each offset should correspond to each hat's index
+	["Left Arm"] = {{"Kate Hair"},{CFrame.Angles(0,0,math.rad(90))}},
+	["Right Arm"] = {{"Hat1"},{CFrame.Angles(0,0,-math.rad(90))}},
+	["Right Leg"] = {{"SidePonytail"},{CFrame.Angles(0,0,math.rad(0))}},
+	["Left Leg"] = {{"LongStraightHair"},{CFrame.Angles(0,0,math.rad(0))}},
+	["Torso"] = {{"MeshPartAccessory"},{CFrame.Angles(0,0,-math.rad(14))}},
+	["Head"] = {{"MediHood"},{CFrame.new(0,0,0.2)}},
 	["FlingPart"] = {[3]=true} -- placeholder, will make use of this later
 }
 
 
-ws=workspace
-pcall(function()
-    sethiddenproperty(hum, "InternalBodyScale", Vector3.new(9e9,9e9,9e9))
-end)
-pcall(function()
-    sethiddenproperty(ws, "PhysicsSteppingMethod", Enum.PhysicsSteppingMethod.Fixed)
-end)
-pcall(function()
-    ws.InterpolationThrottling = Enum.InterpolationThrottlingMode.Disabled
-end)
-pcall(function()
-    ws.Retargeting = "Disabled"
-end)
-pcall(function()
-    sethiddenproperty(ws, "SignalBehavior", "Immediate")
-end)
-pcall(function()
-    game:GetService("PhysicsSettings").PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Disabled
-end)
-pcall(function()
-    game:GetService("PhysicsSettings").AllowSleep = false
-end)
-pcall(function()
-    game:GetService("PhysicsSettings").ThrottleAdjustTime = math.huge
-end)
-pcall(function()
-    game:GetService("PhysicsSettings").ForceCSGv2 = false
-end)
-pcall(function()
-    game:GetService("PhysicsSettings").DisableCSGv2 = false
-end)
-pcall(function()
-    game:GetService("PhysicsSettings").UseCSGv2 = false
-end)
-pcall(function()
-    game:GetService("PhysicsSettings").UseCSGv2 = false
-end)
-pcall(function()
-    setsimulationradius(math.huge)
-end)
-pcall(function()
-    p.MaximumSimulationRadius = 9e9
-    p.SimulationRadius = 9e9
-end)
+
+
 local ps = game:GetService("RunService").PostSimulation
 local fpdh = game.Workspace.FallenPartsDestroyHeight
 local Player = game.Players.LocalPlayer
@@ -72,6 +30,8 @@ flingpart.Parent = workspace
 flingpart.Anchored = true
 flingpart.CanCollide = false
 flingpart.Size = Vector3.new(1,1,1)
+ws=workspace;
+loadstring(game:HttpGet("https://raw.githubusercontent.com/PresidentAnvil/HatdropReanimation/main/Valuable%20Dependencies/thething.lua"))()
 --flingpart.Transparency = 1
 
 function DamageFling(char)
@@ -96,18 +56,21 @@ function _isnetworkowner(Part)
 	return Part.ReceiveAge == 0
 end
 
-function Align(Part1,Part0,cf) 
+function Align(Part1,Part0,cf,isflingpart) 
+    local up = isflingpart
     local con;con=ps:Connect(function()
+        if up~=nil then up=not up end
         if not Part1:IsDescendantOf(workspace) then con:Disconnect() return end
         if not _isnetworkowner(Part1) then return end
         Part1.CanCollide=false
-        Part1.CFrame=Part0.CFrame*cf
+        Part1.CFrame=Part0.CFrame*cf*((up and CFrame.new(0,0.1,0)) or ((up == false) and CFrame.new(0,-0.1,0)) or CFrame.new(0,0,0))
     end)
 end
 
 function deepfind(t,a)
     for i,v in pairs(t) do
-        if v[1]==a then return i end
+        if v[1]==nil then continue end
+        if table.find(v[1],a) then return i,table.find(v[1],a) end
     end
 
     return "FlingPart"
@@ -116,9 +79,9 @@ end
 function getAllHats(Character)
     local allhats = {}
     for i,v in pairs(Character:GetChildren()) do
-        local limb = deepfind(getgenv().Accessories,v.Name)
+        local limb,i2 = deepfind(getgenv().Accessories,v.Name)
         if v:IsA("Accessory") and limb then
-            table.insert(allhats,{v,limb})
+            table.insert(allhats,{v,limb,i2})
         end
     end
     return allhats
@@ -130,7 +93,7 @@ function HatdropCallback(Character, callback)
     local hrp = Character.HumanoidRootPart
     local torso = Character.Torso
     local startCF = FakeCharacter.HumanoidRootPart.CFrame
-    hrp.CFrame=startCF*CFrame.new(math.random(3,6),0,math.random(3,6))
+    hrp.CFrame=startCF*CFrame.new(math.random(-6,6),0,math.random(-6,6))
     task.wait(.25)
     local Track = Character.Humanoid.Animator:LoadAnimation(AnimationInstance)
     Track:Play()
@@ -159,7 +122,7 @@ function HatdropCallback(Character, callback)
     
     Character.ChildRemoved:Connect(function(v)
         if v:IsA("BasePart") then
-            print(v.Name)
+            --print(v.Name)
         end
     end)
     
@@ -169,6 +132,7 @@ function HatdropCallback(Character, callback)
         local con;con=ps:Connect(function()
             if not v[1]:FindFirstChild"Handle" then con:Disconnect() return end
             v[1].Handle.Velocity = (v[2]=="FlingPart" and getgenv().flingvelocity) or getgenv().velocity
+            v[1].Handle.RotVelocity = Vector3.zero
         end)
     end
     callback(allhats)
@@ -183,24 +147,44 @@ function HatdropCallback(Character, callback)
 end
 
 Player.Character.Archivable = true
-FakeCharacter = Player.Character:Clone()
+FakeCharacter = game:GetObjects("rbxassetid://9222518192")[1]
 FakeCharacter.Name = FakeCharacter.Name.."_fake"
 FakeCharacter.Parent = workspace
+FakeCharacter.HumanoidRootPart.CFrame=Player.Character.HumanoidRootPart.CFrame
+local folder = Instance.new("Folder")
+folder.Name='hats'
+folder.Parent=workspace
+for limbname,limbtable in pairs(getgenv().Accessories) do
+    if limbtable[1]==nil then continue end
+    for __,hatname in pairs(limbtable[1]) do 
+        local hat = Player.Character:FindFirstChild(hatname)
+        if hat then
+            local handle = hat.Handle:Clone()
+            handle:BreakJoints()
+            handle.Parent = folder
+            handle.Transparency = 0.5
+            handle.Anchored=true
+            Align(handle,FakeCharacter[limbname],limbtable[2][__])
+        end
+    end
+end
 for i, v in ipairs(FakeCharacter:GetDescendants()) do
     if v:IsA("BasePart") then
         v.Transparency = 1
     elseif v:IsA("Decal") then
         v.Transparency = 1
+    elseif v.Name == "Root Hip" then
+        v.Name = "RootJoint"
     end
 end
 local LVecPart = Instance.new("Part", workspace) 
 LVecPart.CanCollide = false 
 LVecPart.Transparency = 1
 local walk = Instance.new("Animation",FakeCharacter)
-walk.AnimationId = "http://www.roblox.com/asset/?id=180426354"
+walk.AnimationId = "http://www.roblox.com/asset/?id=123"
 local walka = FakeCharacter.Humanoid:LoadAnimation(walk)
 local jump = Instance.new("Animation",FakeCharacter)
-jump.AnimationId = "http://www.roblox.com/asset/?id=125750702"
+jump.AnimationId = "http://www.roblox.com/asset/?id=123"
 local jumpa = FakeCharacter.Humanoid:LoadAnimation(jump)
 local CONVEC
 local function VECTORUNIT()
@@ -3356,12 +3340,12 @@ HatdropCallback(Player.Character, function(allhats)
     workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
     workspace.CurrentCamera.CFrame = oldcam
     for i,v in pairs(allhats) do
-        if not v[1]:FindFirstChild"Handle" then print(v[1].Name) continue end
+        if not v[1]:FindFirstChild"Handle" then continue end
 
         local limb = (v[2]~="FlingPart" and FakeCharacter[v[2]]) or flingpart
 
         v.Parent=FakeCharacter
-        Align(v[1].Handle,limb,(v[2]~="FlingPart" and getgenv().Accessories[v[2]][2]) or CFrame.new(0,0,0))
+        Align(v[1].Handle,limb,(v[2]~="FlingPart" and getgenv().Accessories[v[2]][2][v[3]]) or CFrame.new(0,0,0))
     end
 end)
 
@@ -3374,7 +3358,7 @@ getgenv().conn = Player.CharacterAdded:Connect(function(Character)
             local limb = (v[2]~="FlingPart" and FakeCharacter[v[2]]) or flingpart
     
             v.Parent=FakeCharacter
-            Align(v[1].Handle,limb,(v[2]~="FlingPart" and getgenv().Accessories[v[2]][2]) or CFrame.new(0,0,0))
+            Align(v[1].Handle,limb,(v[2]~="FlingPart" and getgenv().Accessories[v[2]][2][v[3]]) or CFrame.new(0,0,0),(v[2]=="FlingPart" and true) or nil)
         end
     end)
 end)
