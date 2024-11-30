@@ -291,12 +291,12 @@ HatdropCallback(Player.Character, function(allhats)
     workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
     workspace.CurrentCamera.CFrame = oldcam
     for i,v in pairs(allhats) do
-        if not v[1]:FindFirstChild"Handle" then print(v[1].Name) continue end
+        if not v[1]:FindFirstChild"Handle" then continue end
 
         local limb = (v[2]~="FlingPart" and FakeCharacter[v[2]]) or flingpart
 
         v.Parent=FakeCharacter
-        Align(v[1].Handle,limb,(v[2]~="FlingPart" and getgenv().Accessories[v[2]][2]) or CFrame.new(0,0,0))
+        Align(v[1].Handle,limb,(v[2]~="FlingPart" and getgenv().Accessories[v[2]][2][v[3]]) or CFrame.new(0,0,0))
     end
 end)
 
@@ -309,7 +309,7 @@ getgenv().conn = Player.CharacterAdded:Connect(function(Character)
             local limb = (v[2]~="FlingPart" and FakeCharacter[v[2]]) or flingpart
     
             v.Parent=FakeCharacter
-            Align(v[1].Handle,limb,(v[2]~="FlingPart" and getgenv().Accessories[v[2]][2]) or CFrame.new(0,0,0))
+            Align(v[1].Handle,limb,(v[2]~="FlingPart" and getgenv().Accessories[v[2]][2][v[3]]) or CFrame.new(0,0,0),(v[2]=="FlingPart" and true) or nil)
         end
     end)
 end)
