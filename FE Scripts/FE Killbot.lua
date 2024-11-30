@@ -4,7 +4,6 @@
 
 -- moves are, z x c v and t
 
-getgenv().walkspeed = 35
 getgenv().velocity = Vector3.new(15,15,15)
 getgenv().flingvelocity = Vector3.new(999999,999999,999999)
 getgenv().Accessories = {
