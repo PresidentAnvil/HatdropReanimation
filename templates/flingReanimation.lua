@@ -296,7 +296,7 @@ HatdropCallback(Player.Character, function(allhats)
         local limb = (v[2]~="FlingPart" and FakeCharacter[v[2]]) or flingpart
 
         v.Parent=FakeCharacter
-        Align(v[1].Handle,limb,(v[2]~="FlingPart" and getgenv().Accessories[v[2]][2][v[3]]) or CFrame.new(0,0,0))
+        Align(v[1].Handle,limb,(v[2]~="FlingPart" and getgenv().Accessories[v[2]][2][v[3]]) or CFrame.new(0,0,0),(v[2]=="FlingPart" and true) or nil)
     end
 end)
 
