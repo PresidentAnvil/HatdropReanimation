@@ -29,9 +29,9 @@ flingpart.Parent = workspace
 flingpart.Anchored = true
 flingpart.CanCollide = false
 flingpart.Size = Vector3.new(1,1,1)
-ws=workspace;
 loadstring(game:HttpGet("https://raw.githubusercontent.com/PresidentAnvil/HatdropReanimation/main/Valuable%20Dependencies/thething.lua"))()
---flingpart.Transparency = 1
+flingpart.Transparency = 1
+workspace.FallenPartsDestroyHeight = 0/0
 
 function DamageFling(char)
     if not FakeCharacter then return end
@@ -147,7 +147,7 @@ end
 
 Player.Character.Archivable = true
 FakeCharacter = game:GetObjects("rbxassetid://9222518192")[1]
-FakeCharacter.Name = FakeCharacter.Name.."_fake"
+FakeCharacter.Name = Player.Name.."_fake"
 FakeCharacter.Parent = workspace
 FakeCharacter.HumanoidRootPart.CFrame=Player.Character.HumanoidRootPart.CFrame
 local folder = Instance.new("Folder")
@@ -281,10 +281,10 @@ ps:Connect(function()
     end
     Player.CharacterAdded:Wait()
     workspace.CurrentCamera.CameraSubject=FakeCharacter.Humanoid
-        ws.CurrentCamera.CFrame = oldcam
-        ws.CurrentCamera:GetPropertyChangedSignal("CFrame"):Wait()
-        workspace.CurrentCamera.CameraSubject=FakeCharacter.Humanoid
-        ws.CurrentCamera.CFrame = oldcam
+    workspace.CurrentCamera.CFrame = oldcam
+    workspace.CurrentCamera:GetPropertyChangedSignal("CFrame"):Wait()
+    workspace.CurrentCamera.CameraSubject=FakeCharacter.Humanoid
+    workspace.CurrentCamera.CFrame = oldcam
 end)
 
 HatdropCallback(Player.Character, function(allhats)

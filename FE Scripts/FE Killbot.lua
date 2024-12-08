@@ -1,6 +1,5 @@
 -- killbot demo
 -- automatically detects unassigned hats and uses them to fling
--- i've only tested this on solara & synapse z and it works like 92% of the time with other players and 100% of the time by urself
 
 -- moves are, z x c v and t
 
@@ -28,10 +27,9 @@ flingpart.Parent = workspace
 flingpart.Anchored = true
 flingpart.CanCollide = false
 flingpart.Size = Vector3.new(1,1,1)
-ws=workspace;
 loadstring(game:HttpGet("https://raw.githubusercontent.com/PresidentAnvil/HatdropReanimation/main/Valuable%20Dependencies/thething.lua"))()
-
---flingpart.Transparency = 1
+workspace.FallenPartsDestroyHeight = 0/0
+flingpart.Transparency = 1
 
 function DamageFling(char)
     if not FakeCharacter then return end
@@ -1931,10 +1929,10 @@ ps:Connect(function()
     end
     Player.CharacterAdded:Wait()
     workspace.CurrentCamera.CameraSubject=FakeCharacter.Humanoid
-        ws.CurrentCamera.CFrame = oldcam
-        ws.CurrentCamera:GetPropertyChangedSignal("CFrame"):Wait()
+    workspace.CurrentCamera.CFrame = oldcam
+        workspace.CurrentCamera:GetPropertyChangedSignal("CFrame"):Wait()
         workspace.CurrentCamera.CameraSubject=FakeCharacter.Humanoid
-        ws.CurrentCamera.CFrame = oldcam
+        workspace.CurrentCamera.CFrame = oldcam
 end)
 
 HatdropCallback(Player.Character, function(allhats)
