@@ -7,6 +7,9 @@
 
 <p align="center">feel free to use these in your hubs, but please credit me! this github will contain all the premade FE Scripts i've made with hatdrop. if you've got any questions, hmu on discord (president_anvil)</p>
 
+## <p align="center">Known Issues</p>
+- Shoulder Accesories tend to not drop. This might be because of the orientation the character is in on death. I'll look into it soon.
+
 ## <p align="center">AKNOWLEDGE THAT...</p>
 you will have to make everything else on you own, such as:
 - default accessories system, like myworld's
