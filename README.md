@@ -1,7 +1,7 @@
 ### <p align="center">this works on EVERY executor. make sure not to rejoin servers or it will break the script.</p>
 
 # <p align="center">PresidentAnvil's Hatdrop Reanimation</p>
-<p align="center"><img src="./videos/78i9Kia.png" alt="drawing" width="200"/></p>
+<p align="center"><img src="./videos/78i9Kia.png" alt="drawing" width="350"/></p>
 
 <p align="center">feel free to use these in your hubs, but please credit me! this github will contain all the premade FE Scripts i've made with hatdrop. if you've got any questions, hmu on discord (president_anvil)</p>
 
